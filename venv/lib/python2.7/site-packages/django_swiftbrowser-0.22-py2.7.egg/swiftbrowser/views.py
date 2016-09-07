@@ -171,7 +171,47 @@ def objectview(request, container, prefix=None):
 
 
 def upload(request, container, prefix=None):
-    """ Display upload form using swift formpost """
+
+    storage_url = request.session.get('storage_url', '')
+    #meta_storage_url = request.session.get('meta_storage_url', '')
+    auth_token = request.session.get('auth_token', '')
+    #meta_auth_token = request.session.get('meta_auth_token', '')
+    username =  request.session.get('username', '')
+    project_id = request.session.get('project_id','')
+    
+    redirect_url = get_base_url(request)
+    redirect_url += reverse('objectview', kwargs={'container': container, })
+    
+    data = request.FILES.get('file1','')
+    if data == '':
+        messages.add_message(request, messages.ERROR, _("Wrong File. Select it again."))
+        if prefix:
+            return redirect(upload, container=container, prefix=prefix)
+        else:
+            return redirect(upload, container=container)
+
+    
+    if prefix:
+        obj_url = prefix + data.name
+        redirect_url += prefix
+    else: obj_url = data.name
+
+    try:
+        conn = EncSwiftclientAPI(auth_token, project_id)
+        conn.put_object(container,obj_url,data.read())
+        messages.add_message(request, messages.INFO, _("Object uploaded."))
+    except client.ClientException:
+        traceback.print_exc()
+        messages.add_message(request, messages.ERROR, _("Upload denied."))
+        return redirect(containerview)
+    except Exception:
+        traceback.print_exc()
+        messages.add_message(request, messages.ERROR, _("Something goes wrong. Try again!"))
+        return redirect(containerview)
+
+    return redirect(redirect_url)
+
+    """ Display upload form using swift formpost 
 
     storage_url = request.session.get('storage_url', '')
     auth_token = request.session.get('auth_token', '')
@@ -191,6 +231,9 @@ def upload(request, container, prefix=None):
     max_file_count = 1
     expires = int(time.time() + 15 * 60)
     key = get_temp_key(storage_url, auth_token)
+    print "RRR"
+    print key
+    
     if not key:
         messages.add_message(request, messages.ERROR, _("Access denied."))
         if prefix:
@@ -215,7 +258,7 @@ def upload(request, container, prefix=None):
                               'prefix': prefix,
                               'prefixes': prefixes,
                               }, context_instance=RequestContext(request))
-
+    """
 
 def download(request, container, objectname):
     storage_url = request.session.get('storage_url', '')
@@ -225,8 +268,8 @@ def download(request, container, objectname):
     username =  request.session.get('username', '')
     project_id = request.session.get('project_id','')
     
-    #redirect_url = get_base_url(request)
-    #redirect_url += reverse('objectview', kwargs={'container': container, })
+    redirect_url = get_base_url(request)
+    redirect_url += reverse('objectview', kwargs={'container': container, })
 
     try:
         #conn = EncSwiftclientAPI(auth_token, project_id)
@@ -240,9 +283,13 @@ def download(request, container, objectname):
         messages.add_message(request, messages.ERROR, _("Something goes wrong. Try again!"))
         return redirect(objectview, container=container)
 
-    #response = HttpResponse(FileWrapper(ContentFile(obj)), content_type=header['content-type'])
-    #response['Content-Disposition'] = 'attachment; filename=%s' % objectname.split('/')[-1]
-    return Response(response = obj, headers = headers)
+    print "SSSSSSSSSSSSSSSSSSSSSSSS"
+    print str(obj)[10]
+    print header
+
+    response = HttpResponse(FileWrapper(ContentFile(obj)), content_type=header['content-type'])
+    response['Content-Disposition'] = 'attachment; filename=%s' % objectname.split('/')[-1]
+    return response#(response = obj, headers = headers)
     
     
     

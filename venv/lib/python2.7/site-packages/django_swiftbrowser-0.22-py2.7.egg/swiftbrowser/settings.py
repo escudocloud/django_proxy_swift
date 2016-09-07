@@ -36,9 +36,9 @@ SWIFT_AUTH_URL = 'http://193.204.253.174:5000/v3'#2.0'
 SWIFT_AUTH_VERSION = 3  # 2 for keystone
 STORAGE_URL = 'http://193.204.253.174:8080/v1'
 """
-SWIFT_AUTH_URL = 'http://127.0.0.1:8001/v3'
+SWIFT_AUTH_URL = 'http://127.0.0.1:8001'
 SWIFT_AUTH_VERSION = 3  # 2 for keystone
-STORAGE_URL = 'http://127.0.0.1:8001/v1'
+STORAGE_URL = 'http://127.0.0.1:8001'
 
 BASE_URL = 'http://127.0.0.1:8000'  # default if using built-in runserver
 SWAUTH_URL = 'http://127.0.0.1:8080/auth/v2'

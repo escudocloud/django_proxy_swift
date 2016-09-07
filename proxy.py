@@ -60,7 +60,7 @@ def authentication_v2():
     return Response(stream_with_context(json.dumps(info)), content_type = req.headers['content-type'])
 """
 #v3 endpoint
-@app.route('/v3/auth/tokens', methods=['POST'])
+@app.route('/auth/tokens', methods=['POST'])
 def authentication_v3():
     print "authentication v3"
     req = requests.post('%s/auth/tokens' %(AUTH_URL), stream=True, headers=request.headers, data=request.data)
@@ -245,7 +245,9 @@ def get_obj(auth_tenant,container,path):
     except Exception as err:
         print Exception,err
         return Response(status=404)
-    return Response(response = data, headers = headers)
+    print "QQQQ"
+    print headers
+    return Response(response = data, headers = headers, status=200)
 
 @app.route('/<auth_tenant>/<container>', methods=['DELETE'])
 def delete_cont(auth_tenant,container):
@@ -316,7 +318,8 @@ def get_account(auth_tenant):
         return Response(status=exc.http_status)
     except Exception as err:
         print Exception, err
-    return Response(status=200)
+    return Response(response="", status=200)
+    
 
 @app.route('/<auth_tenant>', methods=['PUT','POST'])
 def post_put(auth_tenant):
