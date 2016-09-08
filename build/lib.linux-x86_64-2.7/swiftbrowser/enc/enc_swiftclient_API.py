@@ -9,17 +9,16 @@ class EncSwiftclientAPI:
     def __init__(self, auth_token, project_id):
         print auth_token
         print project_id
-        #self.esc = EncSwiftclient(auth_token, project_id)
-        self.esc = client.Connection(preauthtoken=auth_token,preauthurl="http://127.0.0.1:8001/AUTH_%s" %project_id, auth_version='2.0')
+        self.esc = EncSwiftclient(auth_token, project_id)
 
     def put_container(self, container, headers=None):
-        return self.esc.put_container(container, headers)
+        return self.esc.put_enc_container(container, headers)
 
     def delete_container(self, container):
         return self.esc.delete_container(container)
 
     def post_container(self, container, headers=None):
-        return self.esc.post_container(container, headers)
+        return self.esc.post_enc_container(container, headers)
 
     def head_container(self, container):
         return self.esc.head_container(container)
@@ -34,7 +33,7 @@ class EncSwiftclientAPI:
         return self.esc.head_account()
     
     def put_object(self, container, name, contents):
-        return self.esc.put_object(container, name, contents)
+        return self.esc.put_enc_object(container, name, contents)
 
     def delete_object(self, container, obj_name):
         return self.esc.delete_object(container, obj_name)
@@ -46,7 +45,7 @@ class EncSwiftclientAPI:
         return self.esc.post_object(container, obj, headers)
 
     def get_object(self, container, obj_name):
-        return self.esc.get_object(container, obj_name)
+        return self.esc.get_enc_object(container, obj_name)
         
     def getUserID(self,username):
         return self.esc.getUserID(username)
