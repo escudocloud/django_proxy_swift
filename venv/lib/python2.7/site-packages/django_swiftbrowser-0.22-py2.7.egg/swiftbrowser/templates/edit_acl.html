@@ -7,22 +7,22 @@
 
         <ul class="breadcrumb">
             <li><a href="{% url "containerview" %}">Containers</a></li> 
-            <li><span class="divider">/</span>Add ACL to container {{container}}</li>
+            <li><span class="divider">/</span>Edit ACL container {{container}}</li>
        </ul> 
         
     {% include "messages.html" %}
     {% include "addacl_modal.html" %}
-
+    <!--
     {% if public %}
-    <div class="alert alert-info">
+     <div class="alert alert-info">
         <strong>URL for this public readable container: <u>
             <a href="{{ base_url }}{% url "public_objectview" account=account container=container %}" target="new">
                 {{ base_url }}{% url "public_objectview" account=account container=container %}
             </a>
         </strong>
-    </div>
+    </div> 
     {% endif %}
-
+    -->
 
     <table class="table table-striped">
 
@@ -42,16 +42,21 @@
                             {% if not public %}
                                 <form method="POST" action="{% url "edit_acl" container=container %}" id="mkpublic"> 
                                     {% csrf_token %}
-                                    <input name="username" type="hidden" value=".r:*,.rlistings">
+                                    <input name="make_public" type="hidden" value=".r:*,.rlistings">
                                     <input name="read" type="hidden" value="On">
                                 </form>
                                 <a href="#" onclick="mkpublic.submit()"><i class="icon-eye-open"></i> Make public</a>
+                                
                             {% else %}
-                                <a href="{% url "edit_acl" container=container%}?delete=.r:*,.rlistings"><i class="icon-eye-close"></i> Make private</a>
+                                <form method="POST" action="{% url "edit_acl" container=container %}" id="mkprivate" > 
+                                    {% csrf_token %}
+                                    <input name="make_private" type="hidden" value=".r:*,.rlistings">
+                                </form>
+                                <a href="#" onclick="mkprivate.submit()"><i class="icon-eye-close"></i> Make private</a>
                             {% endif %}
                             </li>
                             <li class="divider" />
-                            <li><a href="#addacl_modal" data-toggle="modal"><i class="icon-user"></i> Add ACL</a></li>
+                            <li><a href="#addacl_modal" data-toggle="modal"><i class="icon-user"></i> Add to ACL</a></li>
                         </ul>
                     </div>
 
@@ -60,7 +65,7 @@
     </thead>
  
     <tbody>
-    {% for user, permission in acls.items %}
+    {% for user, data in acls.items %}
             <tr>
                 <td class="hidden-phone"><i class="icon-user"></i></td>
                 <td>
@@ -69,22 +74,24 @@
                 {% elif user == ".r:*" %}
                     {{user}} <a href="#" data-toggle="tooltip" title="This entry allows the download of objects and is required for public readable containers."><i class=" icon-question-sign"></i></a>
                 {% else %}
-                {{user}}
+                {{data.name}}
                 {% endif %}
                 
                 </td>
         
                 <td style="text-align:right;">
-                    {% if permission.read %}
+                    {% if data.read %}
                         <a class="btn btn-mini btn-success">Read</a> 
             {% endif %}
-            {% if permission.write %}
+            {% if data.write %}
                 <a class="btn btn-mini btn-danger">Write</a> 
             {% endif %}
         </td>
-
+        
          <td>
-            <a class="btn btn-mini btn-danger" href="{% url "edit_acl" container=container%}?delete={{ user }}"><i class="icon-trash icon-white"></i></a>
+            {% if data.name != session.name %}
+            <a class="btn btn-mini btn-danger" href="{% url "edit_acl" container=container%}?delete={{ user }}" onclick="return confirm('{% trans 'Remove from the ACL' %} <{{data.name}}>?');"><i class="icon-trash icon-white"></i></a>
+            {% endif %}
         </td>
         </tr> 
     

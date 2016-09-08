@@ -1,4 +1,4 @@
-#!/home/ale/django_original/django-swiftbrowser_GUI/venv/bin/python
+#!/home/ale/django-swiftbrowser_GUI/venv/bin/python
 
 import sys
 import getopt

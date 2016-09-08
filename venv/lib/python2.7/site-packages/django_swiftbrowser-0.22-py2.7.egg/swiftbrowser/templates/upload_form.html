@@ -21,16 +21,18 @@
             {% endfor %}
        </ul> 
 
-
-<form action="{{ swift_url }}" method="POST" class="form-horizontal" enctype="multipart/form-data">
-
+{% if prefix %}
+<form action="{% url "put_object" container=container prefix=prefix %}" method="POST" class="form-horizontal" enctype="multipart/form-data">
+{% else %}
+<form action="{% url "put_object" container=container %}" method="POST" class="form-horizontal" enctype="multipart/form-data">
+{% endif %}    
+    {% csrf_token %}
     <input type="hidden" name="redirect" value="{{ redirect_url }}" />
     <input type="hidden" name="max_file_size" value="{{ max_file_size }}" />
     <input type="hidden" name="max_file_count" value="{{ max_file_count }}" />
     <input type="hidden" name="expires" value="{{ expires }}" />
     <input type="hidden" name="signature" value="{{ signature }}" />
     <input type="file" name="file1" id="file" style="display:none;" /><br />
-
 
     <fieldset>
     <legend>{% trans 'Upload a file' %}</legend>

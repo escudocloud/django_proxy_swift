@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='django-swiftbrowser',
     version='0.22',
-    packages=['swiftbrowser'],
+    packages=['swiftbrowser','swiftbrowser.enc'],
     include_package_data=True,
     license='Apache License (2.0)',
     description='A simple Django app to access Openstack Swift',
@@ -18,7 +18,7 @@ setup(
     author='Christian Schwede',
     author_email='info@cschwede.de',
     install_requires=['django>=1.5,<=1.9', 'python-swiftclient',
-                      'python-keystoneclient'],
+                      'python-keystoneclient','pycrypto', 'pika', 'ecdsa','python-barbicanclient'],
     zip_safe=False,
     classifiers=[
         'Environment :: Web Environment',

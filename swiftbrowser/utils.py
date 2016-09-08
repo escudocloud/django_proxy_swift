@@ -25,7 +25,6 @@ def get_base_url(request):
 
 def replace_hyphens(olddict):
     """ Replaces all hyphens in dict keys with an underscore.
-
     Needed in Django templates to get a value from a dict by key name. """
     newdict = {}
     for key, value in olddict.items():

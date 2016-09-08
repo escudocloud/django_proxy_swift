@@ -7,16 +7,16 @@
     <form method="POST" action="{% url "edit_acl" container=container %}" class="form-inl"> 
         {% csrf_token %}
         <div class="modal-body">
-            <input class="focused"  name="username" type="text" placeholder="Accountname:Username">
+            <input class="focused"  name="username" type="text" placeholder="Username">
             <span class="help-block">
-                <p>Please note that you have to enter the name in the format "Accountname:Username".</p>
+                <p>Please note that you have to enter the name in the format "Username".</p>
             </span>
 
-            <label class="checkbox">
-                <input type="checkbox" name="read" >Read
+            <label class="radio">
+                <input type="radio" name="right" value="0" >Only Read
             </label>
-            <label class="checkbox">
-                <input type="checkbox" name="write" >Write
+            <label class="radio">
+                <input type="radio" name="right" value="1">Read & Write
             </label>
         </div>
         

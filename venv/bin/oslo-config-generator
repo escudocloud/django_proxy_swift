@@ -1,4 +1,4 @@
-#!/home/ale/django_original/venv/bin/python
+#!/home/ale/django-swiftbrowser_GUI/venv/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'oslo.config==3.17.0','console_scripts','oslo-config-generator'
 __requires__ = 'oslo.config==3.17.0'
 import re

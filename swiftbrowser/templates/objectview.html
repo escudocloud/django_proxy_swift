@@ -81,7 +81,7 @@
                 <td class="hidden-phone"></td>
 
                     <td>
-                    <a href="{% url "delete_object" container=container objectname=folder.1 %}" class="btn btn-mini btn-danger" onclick="return confirm('{% trans 'Delete object' %} {{key.name}}?');" ><i class="icon-trash icon-white"></i></a>
+                    <a href="{% url "delete_object" container=container objectname=folder.1 %}" class="btn btn-small btn-danger" onclick="return confirm('{% trans 'Confirm pseudofolder deletion?' %}');" ><i class="icon-trash icon-white"></i></a>
                     </td>
             </tr>
         {% endfor %}
@@ -89,18 +89,18 @@
         {% for key in objects %}
             <tr>
                 <td class="hidden-phone"><i class="icon-file"></i></td>
-                <td><a href="{% url "download" container=container objectname=key.name %}" class="block">{{key.name|lastpart}}</a></td>
+                <td><a href="{% url "download_dec" container=container objectname=key.name %}" class="block">{{key.name|lastpart}}</a></td>
                 <td class="hidden-phone">{{key.last_modified|dateconv|date:"SHORT_DATETIME_FORMAT"}}</td>
 	            <td class="hidden-phone">{{key.bytes|filesizeformat}}</td>
-                    <td>
-                    <div class="dropdown pull-right">
+                    <td style="text-align:right;">
+                    <!--<div class="dropdown pull-right">
                         <a class="dropdown-toggle btn btn-mini btn-danger" data-toggle="dropdown"><i class="icon-chevron-down icon-white"></i></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url "tempurl" container=container objectname=key.name %}"><i class="icon-time"></i> {% trans 'Temporary URL' %}</a></li>
                             <li class="divider" />
-                            <li><a href="{% url "delete_object" container=container objectname=key.name  %}" onclick="return confirm('{% trans 'Delete object' %} {{key.name}}?');" ><i class="icon-trash"></i> Delete object</a></li>
+                            <li>--><a class="btn btn-mini btn-danger" href="{% url "delete_object" container=container objectname=key.name  %}" onclick="return confirm('{% trans 'Confirm object deletion?' %}');" ><i class="icon-trash icon-white"></i></a><!-- Delete object</a></li>
                         </ul>
-                    </div>
+                    </div>-->
                 </td>
             </tr>
 

@@ -11,9 +11,7 @@ class CreateContainerForm(forms.Form):
 class AddACLForm(forms.Form):
     """ Form for ACLs """
     username = forms.CharField(max_length=100)
-    read = forms.BooleanField(required=False)
-    write = forms.BooleanField(required=False)
-
+    right = forms.ChoiceField(choices=((0,'read'),(1,'write')), widget=forms.RadioSelect())
 
 class PseudoFolderForm(forms.Form):
     """ Upload form """
