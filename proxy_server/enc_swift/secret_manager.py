@@ -38,6 +38,7 @@ class sec_manager:
         container = self.barbican.containers.create(name=node['IDCONTAINER'])
          
         if container_ref is not None:
+            container_ref = "%s/containers/%s" %(BARBICAN_URL,container_ref)
             #Add keys already in the old container keys
             old_container = self.barbican.containers.get(container_ref)
             secrets = old_container.secrets
@@ -60,10 +61,12 @@ class sec_manager:
                 except:
                     continue
         container.store()
-        return container.container_ref
+        container_ref = container.container_ref[container.container_ref.find('containers/')+11:]
+        return container_ref
 
     def get_secret(self, iduser,container_ref,idkey):
         print iduser, container_ref, idkey
+        container_ref = "%s/containers/%s" %(BARBICAN_URL,container_ref)
         container = self.barbican.containers.get(container_ref)
         idkey = str(idkey) + str(iduser)
         #container.secrets contains all the references to secrets
