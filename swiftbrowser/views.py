@@ -27,8 +27,8 @@ from swiftbrowser.utils import replace_hyphens, prefix_list, \
     pseudofolder_object_list, get_temp_key, get_base_url, get_temp_url
 
 import swiftbrowser
-from swiftbrowser.enc.enc_swiftclient_API import EncSwiftclientAPI
-from swiftbrowser.enc.config import *
+from swiftbrowser.enc_new.enc_swiftclient_API import EncSwiftclientAPI
+from swiftbrowser.enc_new.config import *
 
 
 def login(request):
