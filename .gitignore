@@ -1,0 +1,7 @@
+*.pyc
+*~
+*.*~
+
+myLogger.py
+log
+
