@@ -1,4 +1,4 @@
-# Swift encryption 
+# Swift client encryption 
 
 Encswift app can put encrypted files on swift. It introduces the Over-Encryption, in order to avoid useless change on each file, after a policy change.
 In order to start this app you have to start `make run` in swift_browser and run `proxy` in proxy_server. Moreover, a particular version of Swift has to run on the server. 
