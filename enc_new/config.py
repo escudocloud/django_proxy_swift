@@ -5,7 +5,7 @@ STORAGE_URL = 'http://193.204.253.174:8080/v1'
 
 SWIFT_USER = 'swift'
 
-PATH = 'swiftbrowser/enc'
+PATH = 'swiftbrowser/enc_new'
 
 
 #True: Over-Encryption set

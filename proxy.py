@@ -4,14 +4,15 @@ from flask import *
 from werkzeug.exceptions import HTTPException, NotFound
 
 from enc_new.enc_swiftclient_API import EncSwiftclientAPI as esc
-from enc.config import *
+from enc_new.config import *
 from swiftclient.client import ClientException
+from werkzeug.serving import WSGIRequestHandler
 
 import requests,json
 
 app = Flask(__name__)                                                            
 
-host = '127.0.0.1'
+host = '192.168.1.105'
 port = 8001
 host_url = 'http://%s:%d' % (host,port)
 
@@ -30,6 +31,10 @@ DENIED_HEADERS = ['Host']
 def sanitize_headers(headers):
     return dict((k, v) for k, v in headers.items()
                             if k not in DENIED_HEADERS)
+class CustomRequestHandler(WSGIRequestHandler):
+
+    def connection_dropped(self, error, environ=None):
+        print 'dropped, but it is called at the end of the execution :('
 
 def change_endpointURL_v2(name, info):
 
@@ -52,7 +57,7 @@ def change_endpointURL_v3(info):
             el['endpoints'][0]['url'] = host_url 
             el['endpoints'][1]['url'] = host_url
             el['endpoints'][2]['url'] = host_url
-    print json.dumps(info,indent=4)           
+    #print json.dumps(info,indent=4)           
 
 """#v2 endpoint
 @app.route('/tokens', methods=['POST'])
@@ -63,7 +68,6 @@ def authentication_v2():
     change_endpointURL_v2('swift', info)
     return Response(stream_with_context(json.dumps(info)), content_type = req.headers['content-type'])
 """
-
 
 #v3 endpoint
 @app.route('/auth/tokens', methods=['POST'])
@@ -76,7 +80,10 @@ def authentication_v3():
     print req.url, req.cookies
     print "HHHHHHHHHHH"
     change_endpointURL_v3(info)
+    print req.headers
+    print req.status_code
     print "zzzz"
+    
     return Response(response=json.dumps(info), status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
 
 #@app.route('/<path:path>', methods=['GET'])
@@ -97,13 +104,28 @@ def authentication_v3():
     #return Response(response = data)
     #return Response(stream_with_context(req.iter_content()), content_type = req.headers['content-type'])
 
+@app.route('/users/<user_id>', methods=['GET'])
+def post_put(user_id):
+    print "GET USERNAME"
+    head = {}
+    head['X-Auth-Token'] = request.headers.get('X-Auth-Token',None)
+    req = requests.get('%s/users/%s' %(AUTH_URL,user_id), headers=head)
+    print req.content
+    return Response(response=req.content, status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
+
 @app.route('/users')
-def get_users():    
+def get_users(): 
+    print "GET USER ID"   
     head = {}
     head['X-Auth-Token'] = request.headers.get('X-Auth-Token',None)
     req = requests.get('%s/users' %(AUTH_URL), headers=head)
-    ##############RIPARTIRE DA QUI
-    return Response(response=req.content, status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
+    content = json.loads(req.content)
+    for i in content.get('users',[]):
+        a = i.get('links',{}).get('self','')
+        id_ = a[a.find('/users/'):]
+        addr = "%s%s" %(host_url,id_)
+        i['links']['self'] = addr
+    return Response(response=json.dumps(content), status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
 
 @app.route('/<auth_tenant>/<container>', methods=['POST'])
 def post_container(auth_tenant,container):
@@ -333,13 +355,8 @@ def get_account(auth_tenant):
     except Exception as err:
         print Exception, err
     return Response(response="", status=200)
-
-
-@app.route('/<path:path>', methods=['GET','PUT','POST'])
-def post_put(path):
-    print "ERRORE"
-    print path
-    return Response(status=200)
+   
+  
     
 if __name__ == "__main__":
-    app.run(host=host, port=int(port))
+    app.run(host=host, port=int(port),debug=True,request_handler=CustomRequestHandler)
