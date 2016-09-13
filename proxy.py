@@ -39,14 +39,18 @@ def change_endpointURL_v2(name, info):
             el['endpoints'][0]['publicURL'] = host_url+el['endpoints'][0]['publicURL'][el['endpoints'][0]['publicURL'].find('/v1/')+3:]
             el['endpoints'][0]['internalURL'] = host_url+el['endpoints'][0]['internalURL'][el['endpoints'][0]['internalURL'].find('/v1/')+3:]
             
-def change_endpointURL_v3(name, info):
+def change_endpointURL_v3(info):
     
     
-    print json.dumps(info,indent=4)
+    #print json.dumps(info,indent=4)
     for el in info['token']['catalog']:
-        if el['name'] == name:
+        if el['name'] == "swift":
             el['endpoints'][0]['url'] = host_url+el['endpoints'][0]['url'][el['endpoints'][0]['url'].find('/v1/')+3:] 
             el['endpoints'][1]['url'] = host_url+el['endpoints'][1]['url'][el['endpoints'][1]['url'].find('/v1/')+3:]
+            el['endpoints'][2]['url'] = host_url
+        if el['name'] == "keystone":
+            el['endpoints'][0]['url'] = host_url 
+            el['endpoints'][1]['url'] = host_url
             el['endpoints'][2]['url'] = host_url
     print json.dumps(info,indent=4)           
 
@@ -59,6 +63,8 @@ def authentication_v2():
     change_endpointURL_v2('swift', info)
     return Response(stream_with_context(json.dumps(info)), content_type = req.headers['content-type'])
 """
+
+
 #v3 endpoint
 @app.route('/auth/tokens', methods=['POST'])
 def authentication_v3():
@@ -69,7 +75,7 @@ def authentication_v3():
     print req.status_code
     print req.url, req.cookies
     print "HHHHHHHHHHH"
-    change_endpointURL_v3('swift', info)
+    change_endpointURL_v3(info)
     print "zzzz"
     return Response(response=json.dumps(info), status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
 
@@ -90,6 +96,14 @@ def authentication_v3():
     #print data
     #return Response(response = data)
     #return Response(stream_with_context(req.iter_content()), content_type = req.headers['content-type'])
+
+@app.route('/users')
+def get_users():    
+    head = {}
+    head['X-Auth-Token'] = request.headers.get('X-Auth-Token',None)
+    req = requests.get('%s/users' %(AUTH_URL), headers=head)
+    ##############RIPARTIRE DA QUI
+    return Response(response=req.content, status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
 
 @app.route('/<auth_tenant>/<container>', methods=['POST'])
 def post_container(auth_tenant,container):
@@ -319,12 +333,12 @@ def get_account(auth_tenant):
     except Exception as err:
         print Exception, err
     return Response(response="", status=200)
-    
 
-@app.route('/<auth_tenant>', methods=['PUT','POST'])
-def post_put(auth_tenant):
+
+@app.route('/<path:path>', methods=['GET','PUT','POST'])
+def post_put(path):
     print "ERRORE"
-    print auth_tenant
+    print path
     return Response(status=200)
     
 if __name__ == "__main__":

@@ -613,24 +613,26 @@ def edit_acl(request, container):
     conn = EncSwiftclientAPI(auth_token, project_id)
     tenant = storage_url[storage_url.find('AUTH_')+5:]
     
-    
+    print "A!"
     readers, writers = get_acls(storage_url, auth_token, container, username,project_id)
-
+    print "B!"
     readers = remove_duplicates_from_acl(readers)
     writers = remove_duplicates_from_acl(writers)
-
+    print "C!"
     make_public = request.POST.get('make_public')
     make_private = request.POST.get('make_private')
-
+    
     if request.method == 'POST':
 
         form = AddACLForm(request.POST)
-
+        print "D!"
+        print form.is_valid()
         if form.is_valid():
             
             user_n = form.cleaned_data['username']
+            print user_n
             usrID = conn.getUserID(user_n)
-
+            print "E!"
             headers={}
 
             headers['x-container-read'] = add_acl(tenant,readers,usrID)
@@ -726,12 +728,14 @@ def edit_acl(request, container):
     if make_private != None:
         public = False
         readers, writers = get_acls(storage_url,auth_token, container,username,project_id)
-        usrID = conn.getUserID(username[username.find(':')+1:])
+        usrID = conn.getUserID(username)#[username.find(':')+1:])
         headers = {}
         headers['x-container-read'] = add_acl(tenant,readers,usrID)
         headers['x-container-write'] = add_acl(tenant,writers,usrID)  
         try:
+            print container, headers, usrID,"fgwer78oy287rywgu8ru86RT8Q23FTG578G6T8TFGFHGS5WAU"
             conn.post_container(container, headers)
+            print "QQQQQQQQ"
             message = "ACL added your ID."
             messages.add_message(request, messages.INFO, message)
         except client.ClientException:
@@ -746,14 +750,14 @@ def edit_acl(request, container):
     readers, writers = get_acls(storage_url,auth_token, container,username,project_id)
 
     acls = {}
-
+    print"0000000000000000000000000000000"
     if readers != "":
         readers = remove_duplicates_from_acl(readers)
         for entry in readers.split(','):
             acls[entry] = {}
             acls[entry]['read'] = True
             acls[entry]['write'] = False
-
+    print "888888888888888888888888888888888"
     if writers != "":
         writers = remove_duplicates_from_acl(writers)
         for entry in writers.split(','):
@@ -761,16 +765,19 @@ def edit_acl(request, container):
                 acls[entry] = {}
                 acls[entry]['read'] = True
             acls[entry]['write'] = True
-
+    print "ppppppppppppppppppppppppppppppppppppppppppppppppppp"
     if len(acls) != 0:
         for key,value in acls.iteritems():
             acls[key]['name'] = conn.getUsername(key)
-
+    print "sdfsdfu"
     if request.is_secure():
         base_url = "https://%s" % request.get_host()
     else:
         base_url = "http://%s" % request.get_host()
 
+    print request.get_host()
+    print storage_url
+    print base_url
     return render_to_response('edit_acl.html', {
         'container': container,
         'account': storage_url.split('/')[-1],
