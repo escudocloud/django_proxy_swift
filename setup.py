@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='django-swiftbrowser',
     version='0.22',
-    packages=['swiftbrowser','swiftbrowser.enc'],
+    packages=['swiftbrowser','swiftbrowser.enc_new'],
     include_package_data=True,
     license='Apache License (2.0)',
     description='A simple Django app to access Openstack Swift',

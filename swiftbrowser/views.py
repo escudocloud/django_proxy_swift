@@ -44,15 +44,10 @@ def login(request):
             
             user = username[username.find(':')+1:]
             project = username[:username.find(':')]
-            print project,user,password, AUTH_URL
             auth_obj = v3.Password(auth_url=AUTH_URL, username=user,password=password, project_domain_name="Default",  user_domain_name="Default", project_name=project)
-            print "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
             sess = session.Session(auth=auth_obj)
-            print "1"
             auth_token = sess.get_token()
-            print "2"
             project_id = sess.get_project_id()
-            print "3"
             storage_url = '%s/AUTH_%s' %(STORAGE_URL, str(sess.get_project_id()))
             #(storage_url, auth_token) = client.get_auth(
             #    settings.SWIFT_AUTH_URL, username, password,
@@ -67,7 +62,6 @@ def login(request):
             request.session['project_id'] = project_id
             request.session['username'] = user
             request.session['name'] = user
-            print "QQQQQQ"
             return redirect(containerview)
 
         except client.ClientException:
@@ -88,12 +82,10 @@ def containerview(request):
     #meta_auth_token = request.session.get('meta_auth_token', '')
     username =  request.session.get('username', '')
     project_id = request.session.get('project_id','')
-    print "DDDDD"
     if not storage_url or not auth_token:
         return redirect(login)
 
     try:
-        print "JJJJJJJJJJJJ"
         conn = EncSwiftclientAPI(auth_token, project_id)
         account_stat, containers = conn.get_account()
     except client.ClientException as exc:
@@ -228,8 +220,6 @@ def upload(request, container, prefix=None):
 
     swift_url = storage_url + '/' + container + '/'
     
-    print swift_url
-    print "TTTTTTTTTTTTTTTTTTT"
     if prefix:
         swift_url += prefix
         redirect_url += prefix
@@ -613,26 +603,23 @@ def edit_acl(request, container):
     conn = EncSwiftclientAPI(auth_token, project_id)
     tenant = storage_url[storage_url.find('AUTH_')+5:]
     
-    print "A!"
     readers, writers = get_acls(storage_url, auth_token, container, username,project_id)
-    print "B!"
+
     readers = remove_duplicates_from_acl(readers)
     writers = remove_duplicates_from_acl(writers)
-    print "C!"
+
     make_public = request.POST.get('make_public')
     make_private = request.POST.get('make_private')
     
     if request.method == 'POST':
 
         form = AddACLForm(request.POST)
-        print "D!"
-        print form.is_valid()
+
         if form.is_valid():
             
             user_n = form.cleaned_data['username']
-            print user_n
             usrID = conn.getUserID(user_n)
-            print "E!"
+
             headers={}
 
             headers['x-container-read'] = add_acl(tenant,readers,usrID)
@@ -733,9 +720,7 @@ def edit_acl(request, container):
         headers['x-container-read'] = add_acl(tenant,readers,usrID)
         headers['x-container-write'] = add_acl(tenant,writers,usrID)  
         try:
-            print container, headers, usrID,"fgwer78oy287rywgu8ru86RT8Q23FTG578G6T8TFGFHGS5WAU"
             conn.post_container(container, headers)
-            print "QQQQQQQQ"
             message = "ACL added your ID."
             messages.add_message(request, messages.INFO, message)
         except client.ClientException:
@@ -750,14 +735,12 @@ def edit_acl(request, container):
     readers, writers = get_acls(storage_url,auth_token, container,username,project_id)
 
     acls = {}
-    print"0000000000000000000000000000000"
     if readers != "":
         readers = remove_duplicates_from_acl(readers)
         for entry in readers.split(','):
             acls[entry] = {}
             acls[entry]['read'] = True
             acls[entry]['write'] = False
-    print "888888888888888888888888888888888"
     if writers != "":
         writers = remove_duplicates_from_acl(writers)
         for entry in writers.split(','):
@@ -765,19 +748,14 @@ def edit_acl(request, container):
                 acls[entry] = {}
                 acls[entry]['read'] = True
             acls[entry]['write'] = True
-    print "ppppppppppppppppppppppppppppppppppppppppppppppppppp"
     if len(acls) != 0:
         for key,value in acls.iteritems():
             acls[key]['name'] = conn.getUsername(key)
-    print "sdfsdfu"
     if request.is_secure():
         base_url = "https://%s" % request.get_host()
     else:
         base_url = "http://%s" % request.get_host()
 
-    print request.get_host()
-    print storage_url
-    print base_url
     return render_to_response('edit_acl.html', {
         'container': container,
         'account': storage_url.split('/')[-1],

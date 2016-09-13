@@ -27,8 +27,8 @@ from swiftbrowser.utils import replace_hyphens, prefix_list, \
     pseudofolder_object_list, get_temp_key, get_base_url, get_temp_url
 
 import swiftbrowser
-from swiftbrowser.enc.enc_swiftclient_API import EncSwiftclientAPI
-from swiftbrowser.enc.config import *
+from swiftbrowser.enc_new.enc_swiftclient_API import EncSwiftclientAPI
+from swiftbrowser.enc_new.config import *
 
 
 def login(request):
@@ -732,6 +732,7 @@ def edit_acl(request, container):
         headers = {}
         headers['x-container-read'] = add_acl(tenant,readers,usrID)
         headers['x-container-write'] = add_acl(tenant,writers,usrID)  
+        print "FIN QUI!"
         try:
             print container, headers, usrID,"fgwer78oy287rywgu8ru86RT8Q23FTG578G6T8TFGFHGS5WAU"
             conn.post_container(container, headers)

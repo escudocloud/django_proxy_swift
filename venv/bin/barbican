@@ -1,4 +1,4 @@
-#!/home/ale/django_proxy_swift/venv/bin/python
+#!/home/daniele/django_proxy_swift/venv/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'python-barbicanclient==4.1.0','console_scripts','barbican'
 __requires__ = 'python-barbicanclient==4.1.0'
 import re

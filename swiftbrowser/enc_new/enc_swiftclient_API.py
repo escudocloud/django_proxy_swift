@@ -13,12 +13,7 @@ class EncSwiftclientAPI:
     def __init__(self, auth_token, project_id):
         self.aut =  auth_token
         self.pro =  project_id
-        auth_obj = v3.Token(auth_url=AUTH_URL, token=auth_token,  project_domain_name="Default",project_id=project_id)
-        sess = session.Session(auth=auth_obj)
-        self.kc_conn = kc.Client(session=sess)
-        print "OPOPOPOPOP"
-        print "%s/AUTH_%s"%(STORAGE_URL,str(project_id))
-        self.esc = client.Connection(preauthtoken=auth_token,preauthurl="%s/AUTH_%s"%(STORAGE_URL,str(project_id)), auth_version=3)
+        self.esc = client.Connection(preauthtoken=auth_token,preauthurl="%s/AUTH_%s"%(STORAGE_URL,str(project_id)), auth_version='3')
 
     def put_container(self, container, headers=None):
         return self.esc.put_container(container, headers)
@@ -27,12 +22,8 @@ class EncSwiftclientAPI:
         return self.esc.delete_container(container)
 
     def post_container(self, container, headers=None):
-        print "container",container
-        print "headers", headers
-        print self.aut 
-        print self.pro
         return self.esc.post_container(container, headers)
-        #return client.post_container(token = self.aut,url = "http://127.0.0.1:8001/AUTH_%" %self.pro,container=container,headers=headers)
+
     def head_container(self, container):
         return self.esc.head_container(container)
 
@@ -65,10 +56,10 @@ class EncSwiftclientAPI:
         Get the user ID from Keystone
         param: username
         """
-        print username
-        ret_id = filter(lambda x: x.name == username, self.kc_conn.users.list())
-        print ret_id
-        print ret_id[0].id
+        auth_obj = v3.Token(auth_url=AUTH_URL, token=self.aut,  project_domain_name="Default",project_id=self.pro)
+        sess = session.Session(auth=auth_obj)
+        kc_conn = kc.Client(session=sess)
+        ret_id = filter(lambda x: x.name == username, kc_conn.users.list())[0].id
         return ret_id[0].id
 
     def getUsername(self,userid):
@@ -76,5 +67,8 @@ class EncSwiftclientAPI:
         Get the username from Keystone
         param: user ID
         """
-        username = self.kc_conn.users.get(userid).name
+        auth_obj = v3.Token(auth_url=AUTH_URL, token=self.aut,  project_domain_name="Default",project_id=self.pro)
+        sess = session.Session(auth=auth_obj)
+        kc_conn = kc.Client(session=sess)
+        username = kc_conn.users.get(userid).name
         return username
