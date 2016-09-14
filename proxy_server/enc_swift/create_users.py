@@ -28,7 +28,6 @@ class CreateUser:
 
         # Create user
         user = self.client.create_user(self.user, self.password, self.tenant, description=self.pub_keys)
-        print self.pub_keys
         # Set role to the user
         self.client.add_user_role(user, us_role, tenant)
         self.client.add_user_role(user, observer_role, tenant)

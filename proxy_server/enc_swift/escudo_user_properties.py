@@ -98,7 +98,14 @@ class EscudoUserProperties:
         return private_key, public_key
     
     def create(self,user, encpass, client_pubKey,client_verificationkey): 
-        
+        """
+        Create a new user 
+        Args:
+            user: tenant + username
+            encpass: password ciphered
+            client_pubKey: the user's public key
+            client_verificationKey: the user's verification key
+        """
         tenant = user.split(':')[0]
         username = user.split(':')[1]
         try:
@@ -116,7 +123,6 @@ class EscudoUserProperties:
             
             print "Created user ", username
         except Exception,err:
-            print Exception,err
             return
         return "OK"
 

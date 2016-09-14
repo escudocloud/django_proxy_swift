@@ -93,7 +93,6 @@ class key_manager:
                 return result
             except Exception, err:
                 #Error in signature
-                print Exception,err
                 logger.info("Error in signature verification")
                 return None
         else:
@@ -106,7 +105,6 @@ class key_manager:
                 return result
             except Exception, err:
                 #Error in signature
-                print Exception,err
                 logger.info("Error in signature verification")
                 return None
 

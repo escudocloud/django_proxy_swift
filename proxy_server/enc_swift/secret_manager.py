@@ -14,20 +14,19 @@ from myLogger import *
 
 class sec_manager:
 
-    def __init__(self, auth_token, iduser):
+    def __init__(self, sess, iduser):
     
         self.iduser = iduser
         
-        self.auth = v3.Token(auth_url=AUTH_URL,token=auth_token,project_name='demo',project_domain_id="default")
-        sess = session.Session(auth=self.auth)
         self.barbican = bc.Client(session=sess)
         self.keystone = kc.Client(session=sess)
         self.key_manager = key_manager(self.barbican,self.keystone)
 
     def store_secrets (self, container_ref, list_receivers, node, DEK_id):
         """
-        Send message to daemon to update the catalogs
+        Update the catalogs storing the secrets in Barbican
         Args:
+            container_ref: reference of the container 
             list_receivers: receivers to notify
             node: catalog node to send 
             DEK_id: key id to send
@@ -45,7 +44,6 @@ class sec_manager:
             for sec in secrets.keys():
                 container.add(sec,secrets[sec])
              
-        
         ciph_node = node.copy()  
         for rec in list_receivers:
             if ciph_node:
@@ -65,6 +63,13 @@ class sec_manager:
         return container_ref
 
     def get_secret(self, iduser,container_ref,idkey):
+        """
+        Get the key value from barbican
+        Args:
+            iduser: user's id
+            container_ref: the reference of the container
+            idkey: the id of the key to find
+        """
         container_ref = "%s/containers/%s" %(BARBICAN_URL,container_ref)
         container = self.barbican.containers.get(container_ref)
         idkey = str(idkey) + str(iduser)
@@ -95,65 +100,7 @@ class sec_manager:
         obj['KEK'] = base64.b64encode(dek)
         obj['IDCONTAINER'] = idcontainer
         obj['OWNERID'] = iduser
-        return DEK_id, obj # clear token in obj    
-        
-    #Not used any more ?        
-    def get_catalog (self, iduser):
-        """
-        Get the catalog from the meta-container
-        Args:
-            iduser: The user id 
-        Returns:
-            json_data_catalog: User catalog (json format)
-        """
-        CatContainer = '.Cat_usr%s' % iduser
-        CatSource = '$cat_graph%s.json' % iduser
-        try:
-            hdrs, json_data_catalog = self.key_manager.meta_conn.get_object(CatContainer, CatSource)
-        except: 
-            logger.debug("Error in get catalog")
-            json_data_catalog = '{}'
-        return json_data_catalog
-
-    def load_catalog(self, iduser):
-        """
-        Load the catalog (json format) into the cat variable
-        Args:
-            iduser: The user id
-        Returns:
-            cat: The user catalog in json format 
-        """
-        cat = self.get_catalog(iduser)
-        return json.loads(cat)
-        
-    def get_cat_node (self, iduser,idkey):
-        """
-        Load the catalog and get a node with idkey from it
-        Args:
-            iduser: The user id
-            idkey: The KEK id
-        Returns:
-            node: The stored node, with the correspondent DEK
-        """
-        cat = self.load_catalog(iduser)
-        return self.get_node(cat,iduser,idkey)
-
-    def get_node(self, cat,iduser,idkey):
-        """
-        Get a node with idkey from the user catalog
-        Args:
-            cat: The user catalog
-            iduser: The user id
-            idkey: The KEK id
-        Returns:
-            node: The stored node, with the correspondent DEK
-        """
-        _node = cat.get(idkey,{})
-        node = _node.copy()
-        if node:
-            dek = self.key_manager.decrypt_KEK(secret=base64.b64decode('%s' % node['KEK']),signature=base64.b64decode('%s' % node['SIGNATURE']), sender=node['OWNERID'],receiver=iduser)
-            node['KEK'] = dek
-        return node # return a node with a clear key
+        return DEK_id, obj # clear token in obj
 
 
 

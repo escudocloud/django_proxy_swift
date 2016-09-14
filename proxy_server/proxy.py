@@ -18,16 +18,6 @@ host_url = 'http://%s:%d' % (host,port)
 
 DENIED_HEADERS = ['Host']
 
-#auth_ip = '193.204.253.147'
-#auth_port = 5000
-#auth_url = 'http://%s:%d' % (auth_ip,auth_port)
-
-#def retrieve_endpointURL(name,url):
-#
-#    for el in info['access']['serviceCatalog']:
-#        if el['name'] == name:
-#            return el['endpoints'][0][url]
-
 def sanitize_headers(headers):
     return dict((k, v) for k, v in headers.items()
                             if k not in DENIED_HEADERS)
@@ -38,7 +28,9 @@ class CustomRequestHandler(WSGIRequestHandler):
         print 'dropped, but it is called at the end of the execution :('
 
 def change_endpointURL_v2(name, info):
-
+    """
+    Change endpoint during authentication version 2
+    """
     for el in info['access']['serviceCatalog']:
         if el['name'] == name:
             el['endpoints'][0]['adminURL'] = host_url
@@ -46,7 +38,9 @@ def change_endpointURL_v2(name, info):
             el['endpoints'][0]['internalURL'] = host_url+el['endpoints'][0]['internalURL'][el['endpoints'][0]['internalURL'].find('/v1/')+3:]
             
 def change_endpointURL_v3(info):
-    
+    """
+    Change endpoint during authentication version 3
+    """
     try:
       for el in info['token']['catalog']:
         if el['name'] == "swift":
@@ -61,16 +55,6 @@ def change_endpointURL_v3(info):
     except:
         return None
 
-"""#v2 endpoint
-@app.route('/tokens', methods=['POST'])
-def authentication_v2():
-    print "authentication v2"
-    req = requests.post('%s/tokens' %(AUTH_URL), stream=True, headers=request.headers, data=request.data)
-    info =  json.loads(req.content)
-    change_endpointURL_v2('swift', info)
-    return Response(stream_with_context(json.dumps(info)), content_type = req.headers['content-type'])
-"""
-
 #v3 endpoint
 @app.route('/auth/tokens', methods=['POST'])
 def authentication_v3():
@@ -81,26 +65,11 @@ def authentication_v3():
         return Response('',status = 401)
     return Response(response=json.dumps(info), status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
 
-#@app.route('/<path:path>', methods=['GET'])
-#def store(path):
-    #print "path", path, "args", request.url, "headers", request.headers, "data", request.data
-    #headers = {}
-    #headers['Host'] = retrieve_endpointURL('swift','adminURL')
-    #headers['X-Auth-Token'] = request.headers['X-Auth-Token']
-    #req = requests.get('%s/%s'% (STORAGE_URL,path), headers=headers, data=request.data)
-    #url = 'http://'+auth_ip+':8080'+retrieve_endpointURL('swift','publicURL')[retrieve_endpointURL('swift','publicURL').find('/v1/'):]+path
-    #req = requests.get(url, headers=headers, data=request.data)
-    #print "headers", req.headers, "data", req.content
-    #auth_token = request.headers['X-Auth-Token']
-    #esc_conn = esc('admin',auth_token, auth_token, STORAGE_URL, STORAGE_URL)
-    #print path, path.split('/')[1],"".join(path.split('/')[2:])
-    #headers, data = esc_conn.get_object(path.split('/')[1],path.split('/')[2])
-    #print data
-    #return Response(response = data)
-    #return Response(stream_with_context(req.iter_content()), content_type = req.headers['content-type'])
-
 @app.route('/users/<user_id>', methods=['GET'])
-def post_put(user_id):
+def get_user(user_id):
+    """
+    Get all the information about the user with this id
+    """
     head = {}
     head['X-Auth-Token'] = request.headers.get('X-Auth-Token',None)
     req = requests.get('%s/users/%s' %(AUTH_URL,user_id), headers=head)
@@ -108,6 +77,9 @@ def post_put(user_id):
 
 @app.route('/users')
 def get_users(): 
+    """
+    Get all the infromation about the users
+    """
     head = {}
     head['X-Auth-Token'] = request.headers.get('X-Auth-Token',None)
     req = requests.get('%s/users' %(AUTH_URL), headers=head)
@@ -121,17 +93,16 @@ def get_users():
 
 @app.route('/<auth_tenant>/<container>', methods=['POST'])
 def post_container(auth_tenant,container):
+    """
+    Post container function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+    """
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
 
     headval = dict(sanitize_headers(request.headers))
-    #readers = request.headers.get('X-Container-Read',None)
-    #writers = request.headers.get('X-Container-Write',None)
-
-    #if readers != None:
-    #    acl['x-container-read'] = readers
-    #if writers != None:
-    #    acl['x-container-write']= writers
     
     try:
         esc_conn = esc(auth_token, project_id)
@@ -151,6 +122,12 @@ def post_container(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>', methods=['PUT'])
 def put_container(auth_tenant,container):
+    """
+    Put container function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+    """
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -167,6 +144,13 @@ def put_container(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['PUT'])
 def put_obj(auth_tenant,container,path):
+    """
+    Put object function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+        path: object naMe with complete path
+    """
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -174,8 +158,7 @@ def put_obj(auth_tenant,container,path):
     except Exception as err:
         print err
     try:
-         a = esc_conn.put_object(container, path, request.data)
-         print a
+         esc_conn.put_object(container, path, request.data)
     except ClientException as exc:
         print exc.http_status
         return Response(status=exc.http_status)
@@ -185,6 +168,12 @@ def put_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>/<container>', methods=['HEAD'])
 def head_cont(auth_tenant,container):
+    """
+    Head container function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+    """
     auth_tenant = str(auth_tenant)
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
@@ -203,6 +192,12 @@ def head_cont(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>', methods=['GET'])
 def get_cont(auth_tenant,container):
+    """
+    Get container function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+    """
     _type = request.args.get('format', '')
     _marker = request.args.get('marker', '')
     _prefix = request.args.get('prefix', '')
@@ -224,6 +219,13 @@ def get_cont(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['HEAD'])
 def head_obj(auth_tenant,container,path):
+    """
+    Head object function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+        path: object naMe with complete path
+    """
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -240,6 +242,13 @@ def head_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['GET'])
 def get_obj(auth_tenant,container,path):
+    """
+    Get object function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+        path: object naMe with complete path
+    """
     auth_token = request.headers.get('X-Auth-Token',None)
     cookie = request.headers.get('Cookie',None)
     if auth_token == None and cookie != None:
@@ -258,6 +267,12 @@ def get_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>/<container>', methods=['DELETE'])
 def delete_cont(auth_tenant,container):
+    """
+    Delete container function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+    """
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -274,6 +289,13 @@ def delete_cont(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['DELETE'])
 def delete_obj(auth_tenant,container,path):
+    """
+    Delete object function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+        path: object naMe with complete path
+    """
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -292,6 +314,13 @@ def delete_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['POST'])
 def post_obj(auth_tenant,container,path):
+    """
+    Post object function
+    Args:
+        auth_tenant: AUTH_+ project_id
+        container: container name
+        path: object naMe with complete path
+    """
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     headval = dict(sanitize_headers(request.headers))
@@ -310,6 +339,11 @@ def post_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>', methods=['GET'])
 def get_account(auth_tenant):
+    """
+    Get account function
+    Args:
+        auth_tenant: AUTH_+ project_id
+    """
     auth_token = request.headers.get('X-Auth-Token',None)
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -323,8 +357,6 @@ def get_account(auth_tenant):
     except Exception as err:
         print Exception, err
     return Response(response="", status=200)
-   
-  
     
 if __name__ == "__main__":
     app.run(host=host, port=int(port),debug=True,request_handler=CustomRequestHandler)
