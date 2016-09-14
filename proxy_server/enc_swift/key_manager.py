@@ -176,7 +176,9 @@ class key_manager:
         try:
             user = self.keystone.users.get(usrID)
             dict_keys = json.loads(user.description)
-            secret_node = self.barbican.secrets.get(dict_keys.get('Public_Key',''))
+            ref = dict_keys.get('Public_Key','')
+            ref = "%s/secrets/%s" %(BARBICAN_URL,ref)
+            secret_node = self.barbican.secrets.get(ref)
         except:
             logger.info("Error in retrieve RSA public key")
             return
@@ -191,7 +193,9 @@ class key_manager:
         try:
             user = self.keystone.users.get(usrID)
             dict_keys = json.loads(user.description)
-            secret_node = self.barbican.secrets.get(dict_keys.get('Verification_Key',''))
+            ref = dict_keys.get('Verification_Key','')
+            ref = "%s/secrets/%s" %(BARBICAN_URL,ref)
+            secret_node = self.barbican.secrets.get(ref)
         except Exception,err:
             print Exception,err
             logger.info("Error in retrieve RSA public key")
