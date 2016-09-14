@@ -28,6 +28,7 @@ class EncSwiftclientAPI:
         return self.esc.head_container(container)
 
     def get_container(self, container, delimiter=None, prefix=None, marker= None):
+        print "a", self.esc.get_container(container, marker=marker, delimiter=delimiter, prefix=prefix)
         return self.esc.get_container(container, marker=marker, delimiter=delimiter, prefix=prefix)
 
     def get_account(self):

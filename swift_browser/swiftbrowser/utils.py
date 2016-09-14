@@ -56,10 +56,9 @@ def pseudofolder_object_list(objects, prefix):
     for obj in objects:
         # Rackspace Cloudfiles uses application/directory
         # Cyberduck uses application/x-directory
-        if obj.get('content_type', None) in ('application/directory',
-                                             'application/x-directory'):
-            obj['subdir'] = obj['name']
+        if obj.get('content_type', None) in ('application/directory','application/x-directory') or obj.get('name'," ")[-1] == '/':
 
+            obj['subdir'] = obj['name']
         if 'subdir' in obj:
             # make sure that there is a single slash at the end
             # Cyberduck appends a slash to the name of a pseudofolder

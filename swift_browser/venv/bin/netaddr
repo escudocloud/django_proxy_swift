@@ -1,4 +1,4 @@
-#!/home/ale/django_proxy_swift/swift_browser/venv/bin/python
+#!/home/daniele/django_proxy_swift/swift_browser/venv/bin/python
 # EASY-INSTALL-SCRIPT: 'netaddr==0.7.18','netaddr'
 __requires__ = 'netaddr==0.7.18'
 __import__('pkg_resources').run_script('netaddr==0.7.18', 'netaddr')
