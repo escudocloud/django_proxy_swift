@@ -504,7 +504,7 @@ class EncSwiftclient:
         return self.swift_conn.get_account()
 
     def delete_object(self, container, obj):
-        if obj[-1] == '/':
+        if obj[-1] == '/' or obj['content_type'] != 'application/directory':
             meta, objects = self.get_container(container, marker=None, delimiter='/', prefix=obj)
             if len(objects) > 1:
                 # pseudofolder is not empty
