@@ -48,7 +48,8 @@ def change_endpointURL_v3(info):
     
     
     #print json.dumps(info,indent=4)
-    for el in info['token']['catalog']:
+    try:
+      for el in info['token']['catalog']:
         if el['name'] == "swift":
             el['endpoints'][0]['url'] = host_url+el['endpoints'][0]['url'][el['endpoints'][0]['url'].find('/v1/')+3:] 
             el['endpoints'][1]['url'] = host_url+el['endpoints'][1]['url'][el['endpoints'][1]['url'].find('/v1/')+3:]
@@ -57,6 +58,9 @@ def change_endpointURL_v3(info):
             el['endpoints'][0]['url'] = host_url 
             el['endpoints'][1]['url'] = host_url
             el['endpoints'][2]['url'] = host_url
+      return True
+    except:
+        return None
     #print json.dumps(info,indent=4)           
 
 """#v2 endpoint
@@ -75,8 +79,9 @@ def authentication_v3():
     print "\nAuthentication v3\n"
     req = requests.post('%s/auth/tokens' %(AUTH_URL), stream=True, headers=request.headers, data=request.data)
     info =  json.loads(req.content)
-    change_endpointURL_v3(info)
-    
+    a = change_endpointURL_v3(info)
+    if a == None:
+        return Response('',status = 401)
     return Response(response=json.dumps(info), status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
 
 #@app.route('/<path:path>', methods=['GET'])
@@ -204,7 +209,6 @@ def head_cont(auth_tenant,container):
         print err
     try:
         headers = esc_conn.head_container(container)
-        print headers
     except ClientException as exc:
         print exc.http_status
         return Response(status=exc.http_status)
