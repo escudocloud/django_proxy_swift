@@ -733,7 +733,16 @@ def edit_acl(request, container):
         public = True
     else: public = False
 
+
+    head = conn.head_container(container)
+    owner =username
+    id_ = head.get('x-container-meta-owner',None)
+    if id_ != None:
+        owner = conn.getUsername(id_)
+        
+        
     acls = {}
+    
     if readers != "":
         readers = remove_duplicates_from_acl(readers)
         for entry in readers.split(','):
@@ -760,6 +769,7 @@ def edit_acl(request, container):
         'account': storage_url.split('/')[-1],
         'session': request.session,
         'acls': acls,
+        'owner': owner,
         'public': public,
         'base_url': base_url,
     }, context_instance=RequestContext(request))

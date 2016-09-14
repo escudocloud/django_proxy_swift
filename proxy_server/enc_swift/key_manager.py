@@ -76,7 +76,6 @@ class key_manager:
             Dek
         """
         vk = self.get_verificationKey(sender)
-        print vk
         h = SHA256.new()
         h.update(secret)
         dig = h.digest()
