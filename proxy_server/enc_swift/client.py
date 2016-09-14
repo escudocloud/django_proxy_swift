@@ -481,12 +481,12 @@ class EncSwiftclient:
         return account, list_cont
 
     def delete_object(self, container, obj):
-        if obj[-1] == '/':# or obj['content_type'] != 'application/directory':
+        """if obj[-1] == '/':# or obj['content_type'] != 'application/directory':
             meta, objects = self.get_container(container, marker=None, delimiter='/', prefix=obj)
             if len(objects) > 1:
                 # pseudofolder is not empty
                 raise Exception
-                return
+                return"""
         return self.swift_conn.delete_object(container, obj)
 
     def head_object(self, container, obj):

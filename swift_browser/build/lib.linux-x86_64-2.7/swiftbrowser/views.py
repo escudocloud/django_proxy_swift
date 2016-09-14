@@ -366,6 +366,11 @@ def delete_object(request, container, objectname):
     project_id = request.session.get('project_id','')
     try:
         conn = EncSwiftclientAPI(auth_token, project_id)
+        if objectname[-1] == '/':
+            meta, objects = conn.get_container(container, marker=None, delimiter='/', prefix=objectname)
+            if len(objects) > 1:
+                # pseudofolder is not empty
+                raise client.ClientException("It's not an empty pseudofolder")
         conn.delete_object(container, objectname)
         messages.add_message(request, messages.INFO, _("Object deleted."))
     except client.ClientException:

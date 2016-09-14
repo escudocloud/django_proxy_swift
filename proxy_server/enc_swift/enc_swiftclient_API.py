@@ -8,8 +8,6 @@ from config import *
 class EncSwiftclientAPI:
 
     def __init__(self, auth_token, project_id):
-        print auth_token
-        print project_id
         self.esc = EncSwiftclient(auth_token, project_id)
         
     def put_container(self, container, headers=None):
