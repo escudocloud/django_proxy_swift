@@ -329,7 +329,7 @@ def download_dec(request, container, objectname):
 def download_enc(request, container, objectname):
     """ Download an object (encrypted content) from Swift """
 
-    storage_url = request.session.get('storage_url', '')
+    '''storage_url = request.session.get('storage_url', '')
     #meta_storage_url = request.session.get('meta_storage_url', '')
     auth_token = request.session.get('auth_token', '')
     #meta_auth_token = request.session.get('meta_auth_token', '')
@@ -353,7 +353,7 @@ def download_enc(request, container, objectname):
 
     response = HttpResponse(FileWrapper(ContentFile(obj)), content_type=header['content-type'])
     response['Content-Disposition'] = 'attachment; filename=%s_enc' % objectname.split('/')[-1]
-    return response
+    return response'''
 
 def delete_object(request, container, objectname):
     """ Deletes an object """
@@ -368,7 +368,7 @@ def delete_object(request, container, objectname):
         conn = EncSwiftclientAPI(auth_token, project_id)
         conn.delete_object(container, objectname)
         messages.add_message(request, messages.INFO, _("Object deleted."))
-    except:
+    except client.ClientException:
         traceback.print_exc()
         if objectname[-1] == '/':
             messages.add_message(request, messages.ERROR, _("It's not an empty pseudofolder. First, delete all the included objects!"))

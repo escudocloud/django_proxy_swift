@@ -59,7 +59,6 @@ def pseudofolder_object_list(objects, prefix):
         if obj.get('content_type', None) in ('application/directory','application/x-directory') or obj.get('name'," ")[-1] == '/':
 
             obj['subdir'] = obj['name']
-        print "utils", obj
         if 'subdir' in obj:
             # make sure that there is a single slash at the end
             # Cyberduck appends a slash to the name of a pseudofolder
