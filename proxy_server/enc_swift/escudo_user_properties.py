@@ -107,10 +107,10 @@ class EscudoUserProperties:
             print "EE"
             secret = self.barbican.secrets.create(name="public_key",payload=str(client_pubKey))
             secret.store()
-            pub_ref = secret.secret_ref
+            pub_ref = secret.secret_ref[secret.secret_ref.find('secrets/')+8:]
             secret1 = self.barbican.secrets.create(name="verification_key",payload=str(client_verificationkey))
             secret1.store()
-            ver_ref = secret1.secret_ref
+            ver_ref = secret1.secret_ref[secret1.secret_ref.find('secrets/')+8:]
             print pub_ref
             print ver_ref
             dict_pub_key = {}

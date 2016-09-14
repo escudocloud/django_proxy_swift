@@ -74,12 +74,14 @@ class EncSwiftclient:
             if actual_acl and (self.iduser not in actual_acl):
                 return         
             
-            catalog = self.sec_manager.load_catalog(self.iduser)
+            #catalog = self.sec_manager.load_catalog(self.iduser)
             
             hdrs, content = self.swift_conn.get_object(container,obj)
-            print hdrs
-            print cont_header
+            print "ECCO QUA"
+            print "\nHEDERS ogg" , hdrs
+            print "\nHEAXERS cont", cont_header
         except Exception,err:
+            print "QUQQU"
             print Exception,err
             logger.info("Error in get_enc_object")
             return
