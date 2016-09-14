@@ -4,7 +4,6 @@ import swiftclient
 import os, base64, json
 from create_users import CreateUser
 from config import *
-from send_message import sender 
 from secret_manager import sec_manager
 from Crypto.Cipher import AES
 from Crypto import Random

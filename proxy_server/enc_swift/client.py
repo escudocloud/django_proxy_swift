@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import ast, base64, json
-from send_message import sender
 from secret_manager import sec_manager
 from Crypto.PublicKey import RSA
 from swiftclient import client
@@ -501,7 +500,15 @@ class EncSwiftclient:
         return self.swift_conn.get_container(container, marker=marker, delimiter=delimiter, prefix=prefix)
 
     def get_account (self):
-        return self.swift_conn.get_account()
+        account, containers = self.swift_conn.get_account()
+        list_cont = []
+        for cont in containers:
+            cont_name = cont.get('name','')
+            headers = self.head_container(cont_name)
+            list_acl = self.extractACL(headers)
+            if list_acl == [] or (self.iduser in list_acl):
+                list_cont.append(cont)
+        return account, list_cont
 
     def delete_object(self, container, obj):
         if obj[-1] == '/':
