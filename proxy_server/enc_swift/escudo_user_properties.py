@@ -101,23 +101,16 @@ class EscudoUserProperties:
         
         tenant = user.split(':')[0]
         username = user.split(':')[1]
-        print tenant , username
         try:
-            print "EE"
             secret = self.barbican.secrets.create(name="public_key",payload=str(client_pubKey))
             secret.store()
             pub_ref = secret.secret_ref[secret.secret_ref.find('secrets/')+8:]
             secret1 = self.barbican.secrets.create(name="verification_key",payload=str(client_verificationkey))
             secret1.store()
             ver_ref = secret1.secret_ref[secret1.secret_ref.find('secrets/')+8:]
-            print pub_ref
-            print ver_ref
             dict_pub_key = {}
             dict_pub_key['Public_Key'] = pub_ref
             dict_pub_key['Verification_Key'] = ver_ref
-            print client_pubKey
-            print client_verificationkey
-            #Create the new user
             CreateUser(username,encpass,tenant,json.dumps(dict_pub_key),'Member',AUTH_URL).start()
             self.usrID = filter(lambda x: x.name == username, self.keystone.users.list())[0].id
             

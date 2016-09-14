@@ -31,6 +31,7 @@ DENIED_HEADERS = ['Host']
 def sanitize_headers(headers):
     return dict((k, v) for k, v in headers.items()
                             if k not in DENIED_HEADERS)
+                            
 class CustomRequestHandler(WSGIRequestHandler):
 
     def connection_dropped(self, error, environ=None):
@@ -46,8 +47,6 @@ def change_endpointURL_v2(name, info):
             
 def change_endpointURL_v3(info):
     
-    
-    #print json.dumps(info,indent=4)
     try:
       for el in info['token']['catalog']:
         if el['name'] == "swift":
@@ -61,7 +60,6 @@ def change_endpointURL_v3(info):
       return True
     except:
         return None
-    #print json.dumps(info,indent=4)           
 
 """#v2 endpoint
 @app.route('/tokens', methods=['POST'])
@@ -76,7 +74,6 @@ def authentication_v2():
 #v3 endpoint
 @app.route('/auth/tokens', methods=['POST'])
 def authentication_v3():
-    print "\nAuthentication v3\n"
     req = requests.post('%s/auth/tokens' %(AUTH_URL), stream=True, headers=request.headers, data=request.data)
     info =  json.loads(req.content)
     a = change_endpointURL_v3(info)
@@ -104,16 +101,13 @@ def authentication_v3():
 
 @app.route('/users/<user_id>', methods=['GET'])
 def post_put(user_id):
-    print "\nGET USERNAME" , user_id
     head = {}
     head['X-Auth-Token'] = request.headers.get('X-Auth-Token',None)
     req = requests.get('%s/users/%s' %(AUTH_URL,user_id), headers=head)
-    print req.content
     return Response(response=req.content, status= req.status_code, content_type = req.headers['content-type'], headers = dict(req.headers))
 
 @app.route('/users')
 def get_users(): 
-    print "\nGET USER ID"   
     head = {}
     head['X-Auth-Token'] = request.headers.get('X-Auth-Token',None)
     req = requests.get('%s/users' %(AUTH_URL), headers=head)
@@ -127,7 +121,6 @@ def get_users():
 
 @app.route('/<auth_tenant>/<container>', methods=['POST'])
 def post_container(auth_tenant,container):
-    print "\nPOST CONT", auth_tenant,container
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
 
@@ -145,8 +138,6 @@ def post_container(auth_tenant,container):
     except Exception as err:
         print err
     try:
-        print "\nHEDVL"
-        print headval
         if headval:
             esc_conn.post_container(container,headval)
         else:
@@ -160,8 +151,6 @@ def post_container(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>', methods=['PUT'])
 def put_container(auth_tenant,container):
-    print "\nPUT CONT", auth_tenant,container
-    print request.method, request.headers, request.data
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -178,9 +167,6 @@ def put_container(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['PUT'])
 def put_obj(auth_tenant,container,path):
-    print "\nPUT OBJECT"
-    print auth_tenant, container, path, request.method, 
-    print request.data
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -199,7 +185,6 @@ def put_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>/<container>', methods=['HEAD'])
 def head_cont(auth_tenant,container):
-    print "\nHEAD CONT",auth_tenant,container
     auth_tenant = str(auth_tenant)
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
@@ -222,7 +207,6 @@ def get_cont(auth_tenant,container):
     _marker = request.args.get('marker', '')
     _prefix = request.args.get('prefix', '')
     _delimiter = request.args.get('delimiter', '')
-    print "\nGET CONT", auth_tenant,container,_type,_marker,_prefix,_delimiter
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -240,8 +224,6 @@ def get_cont(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['HEAD'])
 def head_obj(auth_tenant,container,path):
-    print "\nHEAD OBJ",auth_tenant,container,path
-    print request.headers, request.data, request.args, request.method
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -258,10 +240,6 @@ def head_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['GET'])
 def get_obj(auth_tenant,container,path):
-    print "\nGET OBJ", auth_tenant,container,path
-    print request.headers
-    print request.values
-    print request.data
     auth_token = request.headers.get('X-Auth-Token',None)
     cookie = request.headers.get('Cookie',None)
     if auth_token == None and cookie != None:
@@ -280,7 +258,6 @@ def get_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>/<container>', methods=['DELETE'])
 def delete_cont(auth_tenant,container):
-    print "\nDEL CONT",auth_tenant,container
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -297,7 +274,6 @@ def delete_cont(auth_tenant,container):
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['DELETE'])
 def delete_obj(auth_tenant,container,path):
-    print "\nDEL OBJ",auth_tenant,container,path
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -309,12 +285,13 @@ def delete_obj(auth_tenant,container,path):
     except ClientException as exc:
         print exc.http_status
         return Response(status=exc.http_status)
+    except Exception,err:
+        return Response(status=304)
     
     return Response(status=200)
 
 @app.route('/<auth_tenant>/<container>/<path:path>', methods=['POST'])
 def post_obj(auth_tenant,container,path):
-    print "POST OBJ", auth_tenant,container,path
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     headval = dict(sanitize_headers(request.headers))
@@ -333,7 +310,6 @@ def post_obj(auth_tenant,container,path):
 
 @app.route('/<auth_tenant>', methods=['GET'])
 def get_account(auth_tenant):
-    print "\nGET ACCOUNT",auth_tenant
     auth_token = request.headers.get('X-Auth-Token',None)
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:

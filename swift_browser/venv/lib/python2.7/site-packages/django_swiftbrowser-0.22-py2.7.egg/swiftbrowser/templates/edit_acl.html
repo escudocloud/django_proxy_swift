@@ -89,7 +89,7 @@
         </td>
         
          <td>
-            {% if data.name != session.name %}
+            {% if data.name != session.name and owner == session.name%}
             <a class="btn btn-mini btn-danger" href="{% url "edit_acl" container=container%}?delete={{ user }}" onclick="return confirm('{% trans 'Remove from the ACL' %} <{{data.name}}>?');"><i class="icon-trash icon-white"></i></a>
             {% endif %}
         </td>

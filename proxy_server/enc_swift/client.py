@@ -40,7 +40,6 @@ class EncSwiftclient:
         param: username
         """
         ret_id = filter(lambda x: x.name == username, self.kc_conn.users.list())[0]
-        print ret_id
         return ret_id.id
         #resp = sender().send_message('get_id','#'.join([self.auth,username]))
         #return resp.content
@@ -76,12 +75,7 @@ class EncSwiftclient:
             #catalog = self.sec_manager.load_catalog(self.iduser)
             
             hdrs, content = self.swift_conn.get_object(container,obj)
-            print "ECCO QUA"
-            print "\nHEDERS ogg" , hdrs
-            print "\nHEAXERS cont", cont_header
         except Exception,err:
-            print "QUQQU"
-            print Exception,err
             logger.info("Error in get_enc_object")
             return
    
@@ -182,9 +176,6 @@ class EncSwiftclient:
         bel_DEK = self.sec_manager.get_secret(self.iduser,container_ref, bel_DEK_id).get('KEK',None)
         if bel_DEK is None:
             return None
-        print bel_DEK
-        print "OOOOOO"
-        print content
         
         return self.sec_manager.key_manager.encrypt_msg(str(content),bel_DEK)
 
@@ -201,13 +192,8 @@ class EncSwiftclient:
             resp_header = self.head_container(container)
             actual_acl = self.extractACL(resp_header)
             
-            print "RESP_HEADERS"
-            print resp_header
-            print actual_acl
-            print not actual_acl
             #Permitted upload of clear objects
             if not actual_acl:
-                print "TTTTTTTTTTTTTTT"
                 self.swift_conn.put_object(container, obj_name, content)
                 return
         except:
@@ -250,23 +236,16 @@ class EncSwiftclient:
         Change a container visibility. A public container becomes private.
         All the objects must be ciphered with a new BEL DEK
         """
-        
-        print "PUBLICTOPRIVaTE"
         #Add self.iduser to new_acl
         new_acl.append(unicode(self.iduser))
         new_acl = list(set(new_acl))
-        print new_acl
-        print headers
-        print "WWW"
         #Create a new BEL key
         bel_id, obj_bel = self.sec_manager.create_node(self.iduser, container)
-        print "WWW2"
         # Send messages (for updating the graph)
         #if self.send_message(new_acl, obj_bel, bel_id)!= 200:
         #    logger.info('Error in send_message')
         #    return
         container_ref = self.sec_manager.store_secrets(None,new_acl,obj_bel,bel_id)
-        print "WWW3"
         cont_headers={}
         cont_headers['x-container-meta-container-ref'] = container_ref
         cont_headers['x-container-meta-bel-id'] = str(bel_id)
@@ -275,7 +254,6 @@ class EncSwiftclient:
         try:
             # Post header container
             self.swift_conn.post_container(container,headers=cont_headers)
-            print "WWW4"
             #Download the objects and upload them ciphered with BEL key
             head, list_obj = self.get_container(container)
             for obj in list_obj:
@@ -338,9 +316,6 @@ class EncSwiftclient:
         new_acl.append(unicode(self.iduser))
         new_acl = list(set(new_acl))
         
-        print "\nACLACL"
-        print new_acl
-        print actual_acl
         #Retrieve SEL information
         initial_acl_sel = self.extractACL_param(actual_head,'x-container-meta-sel-acl')
         version_sel_DEK = actual_head.get("x-container-meta-sel-version",'0')
@@ -388,12 +363,10 @@ class EncSwiftclient:
                 init_acl = list(set(initial_acl_sel + added_users)) if initial_acl_sel else list(set(new_acl + actual_acl))
                 headers['x-container-meta-sel-id'] = str(sel_id)
                 headers['x-container-meta-sel-acl'] = str({self.idtenant:map(lambda x:"AUTH_"+str(x), init_acl)})
-                print headers
                 headers['x-container-meta-sel-version'] = str(eval(version_sel_DEK)+1)
                 new_cont_secret_ref = self.sec_manager.store_secrets(new_cont_secret_ref, new_acl+ [self.SWIFT_ID],obj_sel,sel_id)
                 headers['x-container-meta-container-ref'] = new_cont_secret_ref
                 #new_cont_secret_ref = self.send_message(new_cont_secret_ref, actual_acl + [self.SWIFT_ID],{},actual_sel_id)!= 200:
-        print headers
         self.swift_conn.post_container(container_name,headers=headers)
         """except Exception, err:
             print Exception,err
@@ -413,9 +386,6 @@ class EncSwiftclient:
         actual_head = self.head_container(container)
         actual_acl = sorted(self.extractACL(actual_head))
         new_acl = sorted(self.extractACL(headers))
-        print "\nACL"
-        print actual_acl
-        print new_acl
         if not actual_acl and not new_acl:
             #Container not ciphered yet. It has to remain public
             try:
@@ -511,12 +481,12 @@ class EncSwiftclient:
         return account, list_cont
 
     def delete_object(self, container, obj):
-        """if obj[-1] == '/' or obj['content_type'] != 'application/directory':
+        if obj[-1] == '/':# or obj['content_type'] != 'application/directory':
             meta, objects = self.get_container(container, marker=None, delimiter='/', prefix=obj)
             if len(objects) > 1:
                 # pseudofolder is not empty
                 raise Exception
-                return"""
+                return
         return self.swift_conn.delete_object(container, obj)
 
     def head_object(self, container, obj):
