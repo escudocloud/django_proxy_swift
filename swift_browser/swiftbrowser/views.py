@@ -175,11 +175,9 @@ def objectview(request, container, prefix=None):
     username =  request.session.get('username', '')
     project_id = request.session.get('project_id','')
     try:
-        print prefix
         conn = EncSwiftclientAPI(auth_token, project_id)
         meta, objects = conn.get_container(container, delimiter='/',
                                            prefix=prefix)
-        print meta, objects
     except client.ClientException:
         traceback.print_exc()
         messages.add_message(request, messages.ERROR, _("Access denied."))

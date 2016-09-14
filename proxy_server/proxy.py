@@ -216,8 +216,9 @@ def head_cont(auth_tenant,container):
 def get_cont(auth_tenant,container):
     _type = request.args.get('format', '')
     _marker = request.args.get('marker', '')
-    print "\nGET CONT", auth_tenant,container,_type,_marker
-    print request.headers
+    _prefix = request.args.get('prefix', '')
+    _delimiter = request.args.get('delimiter', '')
+    print "\nGET CONT", auth_tenant,container,_type,_marker,_prefix,_delimiter
     auth_token = request.headers['X-Auth-Token']
     project_id = auth_tenant[auth_tenant.find('_')+1:]
     try:
@@ -225,7 +226,7 @@ def get_cont(auth_tenant,container):
     except Exception as err:
         print err
     try:
-        headers, data = esc_conn.get_container(container, marker=_marker)
+        headers, data = esc_conn.get_container(container, delimiter=_delimiter, prefix=_prefix, marker=_marker)
     except ClientException as exc:
         print exc.http_status
         return Response(status=exc.http_status)
