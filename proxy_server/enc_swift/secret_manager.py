@@ -65,7 +65,6 @@ class sec_manager:
         return container_ref
 
     def get_secret(self, iduser,container_ref,idkey):
-        print iduser, container_ref, idkey
         container_ref = "%s/containers/%s" %(BARBICAN_URL,container_ref)
         container = self.barbican.containers.get(container_ref)
         idkey = str(idkey) + str(iduser)
