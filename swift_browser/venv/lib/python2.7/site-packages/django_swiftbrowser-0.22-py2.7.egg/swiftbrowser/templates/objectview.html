@@ -87,7 +87,6 @@
         {% endfor %}
 
         {% for key in objects %}
-        {{key}}
             <tr>
                 <td class="hidden-phone"><i class="icon-file"></i></td>
                 <td><a href="{% url "download_dec" container=container objectname=key.name %}" class="block">{{key.name|lastpart}}</a></td>
