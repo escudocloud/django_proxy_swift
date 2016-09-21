@@ -1,6 +1,6 @@
 """ Settings for Django project """
 import os
-DEBUG = True
+DEBUG = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 USE_L10N = True
