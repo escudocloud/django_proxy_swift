@@ -34,7 +34,7 @@
         <th style="width: 7.5em;"></th>
         <th style="width: 1em;">
 
-
+            {% if owner == session.name%}
             <div class="dropdown pull-right">
                         <a class="dropdown-toggle btn btn-mini btn-danger" data-toggle="dropdown"><i class="icon-chevron-down icon-white"></i></a>
                         <ul class="dropdown-menu">
@@ -59,7 +59,7 @@
                             <li><a href="#addacl_modal" data-toggle="modal"><i class="icon-user"></i> Add to ACL</a></li>
                         </ul>
                     </div>
-
+            {%endif %}
         </th>
     </tr>
     </thead>
