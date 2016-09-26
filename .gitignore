@@ -3,10 +3,10 @@
 *.*~
 *.key
 
-./proxy_server/myLogger.py
-./proxy_server/log
+./proxy_server/enc_swift/myLogger.py
+./proxy_server/enc_swift/log
 django_swiftbrowser-0.22-py2.7.egg
-./proxy_server/config.py
+./proxy_server/enc_swift/config.py
 
 ./swift_browser/venv/*
 
