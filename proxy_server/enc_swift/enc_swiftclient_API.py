@@ -30,6 +30,9 @@ class EncSwiftclientAPI:
 
     def head_account(self):
         return self.esc.head_account()
+        
+    def post_account(self,header):
+        return self.esc.post_account(header)
     
     def put_object(self, container, name, contents):
         return self.esc.put_enc_object(container, name, contents)

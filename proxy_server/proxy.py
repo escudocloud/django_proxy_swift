@@ -13,7 +13,7 @@ import requests,json
 app = Flask(__name__)                                                            
 
 host = '127.0.0.1'
-port = 8001
+port = 8801
 host_url = 'http://%s:%d' % (host,port)
 
 DENIED_HEADERS = ['Host']
@@ -331,6 +331,30 @@ def post_obj(auth_tenant,container,path):
         print err
     try:
         esc_conn.post_object(container,path,headval)
+    except ClientException as exc:
+        print exc.http_status
+        return Response(status=exc.http_status)
+    
+    return Response(status=200)
+
+@app.route('/<auth_tenant>', methods=['POST'])
+def post_account(auth_tenant):
+    """
+    Post account function
+    Args:
+        auth_tenant: AUTH_+ project_id
+    """
+    auth_token = request.headers['X-Auth-Token']
+    project_id = auth_tenant[auth_tenant.find('_')+1:]
+
+    headval = dict(sanitize_headers(request.headers))
+    
+    try:
+        esc_conn = esc(auth_token, project_id)
+    except Exception as err:
+        print err
+    try:
+        esc_conn.post_account(headval)
     except ClientException as exc:
         print exc.http_status
         return Response(status=exc.http_status)
