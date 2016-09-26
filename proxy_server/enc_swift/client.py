@@ -485,4 +485,7 @@ class EncSwiftclient:
 
     def delete_container(self, container):
         return self.swift_conn.delete_container(container)
+        
+    def post_account(self, headers):
+        return self.swift_conn.post_account(headers)
 
