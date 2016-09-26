@@ -60,6 +60,18 @@ class sec_manager:
                     continue
         container.store()
         container_ref = container.container_ref[container.container_ref.find('containers/')+11:]
+        print ("\n")
+        print (10*" "+"-----------------------")
+        print (10*" "+"Keys for this container")
+        print (10*" "+"-----------------------")
+        print ("\n")
+        try:
+            a = container.secrets.copy()
+            for i in a:
+                print "KeyId: %s...  <> User: %s..." %(i[:-52],i[-32:-10])
+        except Exception,err:
+            print Exception,err 
+        
         return container_ref
 
     def get_secret(self, iduser,container_ref,idkey):

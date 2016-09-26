@@ -17,9 +17,9 @@ keystone = kc.Client(session=sess)
 while(True):
     try:
         print('\nUser creation...\n\n')
-        for i in range (0,6):
-            u = EscudoUserProperties('demo:enctest'+str(i),'enctest'+str(i),barbican,keystone)
-            #u = EscudoUserProperties('demo:swift','secretsecret',barbican,keystone)
+        for i in range (0,1):
+            #u = EscudoUserProperties('demo:enctest'+str(i),'enctest'+str(i),barbican,keystone)
+            u = EscudoUserProperties('demo:swift','secretsecret',barbican,keystone)
             u.create_user()
         break
     except SyntaxError:
