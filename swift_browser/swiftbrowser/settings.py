@@ -32,9 +32,9 @@ INSTALLED_APPS = (
     'swiftbrowser'
 )
 
-SWIFT_AUTH_URL = 'http://127.0.0.1:8001'#2.0'
+SWIFT_AUTH_URL = 'http://127.0.0.1:8801'#2.0'
 SWIFT_AUTH_VERSION = 3  # 2 for keystone
-STORAGE_URL = 'http://127.0.0.1:8001'
+STORAGE_URL = 'http://127.0.0.1:8801'
 BASE_URL = 'http://127.0.0.1:8000'  # default if using built-in runserver
 SWAUTH_URL = 'http://127.0.0.1:8080/auth/v2'
 
