@@ -1,7 +1,0 @@
-django>=1.5,<=1.9
-python-swiftclient
-python-keystoneclient
-pycrypto
-pika
-ecdsa
-python-barbicanclient

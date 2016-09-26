@@ -1,9 +1,11 @@
 *.pyc
 *~
 *.*~
+*.key
 
-
-myLogger.py
-log
+./proxy_server/enc_swift/myLogger.py
+./proxy_server/enc_swift/log
+./proxy_server/enc_swift/config.py
 django_swiftbrowser-0.22-py2.7.egg
 
+./swift_browser/venv/*
