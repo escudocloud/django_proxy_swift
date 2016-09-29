@@ -10,3 +10,6 @@ proxy_server/enc_swift/config.py
 django_swiftbrowser-0.22-py2.7.egg
 
 swift_browser/venv/*
+
+# Log file
+swift_browser/log
